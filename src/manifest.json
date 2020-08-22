@@ -1,0 +1,37 @@
+{
+    "name": "FeTools",
+    "description": "一个简易的开发辅助工具!",
+    "version": 0.1,
+    "manifest_version": 2,
+    "icons": {
+        "48": "icons/icon_48.png",
+        "128": "icons/icon_128.png"
+    },
+    "browser_action": {
+        "default_icon": "icons/icon_48.png",
+        "default_title": "开发辅助工具",
+        "default_popup": "popup/popup.html"
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "permissions": [
+		"contextMenus",
+		"tabs",
+		"notifications",
+		"webRequest",
+		"webRequestBlocking",
+		"storage",
+		"http://*/*",
+        "https://*/*",
+        "debugger"
+    ],
+    "content_scripts": [
+		{
+			"matches": ["https://dev2.baidu.com/*"],
+			"js": ["./content-script.js"]
+		}
+	]
+}
