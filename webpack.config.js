@@ -15,6 +15,7 @@ const config = {
         'background': './background.js',
         'popup/popup': './popup/popup.js',
         'tab/tab': './tab/tab.js',
+        'xmlhttp': './xmlhttp.js'
     },
     output: {
         path: __dirname + '/dist',
