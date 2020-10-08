@@ -54,6 +54,7 @@
 // };
 // window.XMLHttpRequest = ajax_interceptor_qoweifjqon.myXHR;
 
+window.chromes = chrome;
 const script = document.createElement('script');
 script.setAttribute('type', 'text/javascript');
 script.setAttribute('src', chrome.extension.getURL('xmlhttp.js'));

@@ -19,7 +19,8 @@ export default {
         init() {
         },
         gotoMock() {
-            chrome.tabs.create({url: 'chrome-extension://bjnnjlhhifocfdokejjpbmmjcgbgfieb/tab/tab.html'});
+            const mockUrl = chrome.extension.getURL('tab/tab.html');
+            chrome.tabs.create({url: mockUrl});
         }
     }
 };
