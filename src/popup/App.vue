@@ -1,8 +1,14 @@
 <template>
     <div class="minimock-popup-wrap">
-        <h3>miniMock功能</h3>
+        <h3>FeTools功能</h3>
         <a-button type="primary" @click="gotoMock" class="btn-wrap">
             <a-icon type="api" /> 设置Mock数据
+        </a-button>
+        <a-button type="primary" @click="gotoJSON" class="btn-wrap">
+            <a-icon type="code" /> 格式化JSON
+        </a-button>
+        <a-button type="primary" @click="gotoCompress" class="btn-wrap">
+            <a-icon type="file-jpg" /> 压缩图片
         </a-button>
     </div>
 </template>
@@ -21,6 +27,12 @@ export default {
         gotoMock() {
             const mockUrl = chrome.extension.getURL('tab/tab.html');
             chrome.tabs.create({url: mockUrl});
+        },
+        gotoJSON() {
+            chrome.tabs.create({url: 'http://json.cn'});
+        },
+        gotoCompress() {
+            chrome.tabs.create({url: 'https://tinypng.com'});
         }
     }
 };
@@ -36,6 +48,7 @@ h3 {
     padding: 15px 20px;
     .btn-wrap {
         width: 100%;
+        margin-bottom: 10px;
     }
 }
 </style>
