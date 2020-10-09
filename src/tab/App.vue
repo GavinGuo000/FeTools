@@ -120,7 +120,7 @@ export default {
             });
         },
         onJsonChange (value) {
-            console.log('value:', value);
+            this.jsonbody = value;
         },
         showModal() {
             this.visible = true;
@@ -248,7 +248,7 @@ export default {
                     if (item.key === me.key) {
                         item.name = me.name;
                         item.url = me.url;
-                        item.jsonbody = JOSN.stringify(me.jsonbody);
+                        item.jsonbody = JSON.stringify(me.jsonbody);
                         item.yapi = me.yapi;
                     }
                 });

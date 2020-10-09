@@ -15,7 +15,8 @@ const config = {
         'background': './background.js',
         'popup/popup': './popup/popup.js',
         'tab/tab': './tab/tab.js',
-        'xmlhttp': './xmlhttp.js'
+        'xmlhttp': './xmlhttp.js',
+        'myaxios': './myaxios.js'
     },
     output: {
         path: __dirname + '/dist',

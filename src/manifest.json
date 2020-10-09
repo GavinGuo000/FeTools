@@ -38,6 +38,7 @@
 		}
     ],
     "web_accessible_resources": [
-        "xmlhttp.js"
+        "xmlhttp.js",
+        "myaxios.js"
     ]
 }

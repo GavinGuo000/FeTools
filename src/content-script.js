@@ -17,9 +17,14 @@ chrome.storage.local.get(['listData'], result => {
     
     // 如果存在mock数据，则将mock功能注入页面
     if (mockDatas.length > 0) {
-        const script = document.createElement('script');
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', chrome.extension.getURL('xmlhttp.js'));
-        document.documentElement.appendChild(script);
+        const script1 = document.createElement('script');
+        script1.setAttribute('type', 'text/javascript');
+        script1.setAttribute('src', chrome.extension.getURL('myaxios.js'));
+        document.documentElement.appendChild(script1);
+
+        const script2 = document.createElement('script');
+        script2.setAttribute('type', 'text/javascript');
+        script2.setAttribute('src', chrome.extension.getURL('xmlhttp.js'));
+        document.documentElement.appendChild(script2);
     }
 });
