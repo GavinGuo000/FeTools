@@ -45,25 +45,40 @@
                 <a-input placeholder="mock名称" v-model="name" />
             </div>
             <div class="mock-wrap-inline">
-                <label>url：</label>
+                <label>URL：</label>
                 <a-input placeholder="url" v-model="url" />
             </div>
             <div class="mock-wrap-inline">
-                <label>数据：</label>
-                <a-textarea placeholder="" :rows="9" v-model="jsonbody" />
+                <label>YAPI：</label>
+                <a-input placeholder="url" v-model="yapi" />
+            </div>
+            <div class="mock-wrap-inline">
+                <label>自定义数据：</label>
+                <vue-json-editor
+                v-model="jsonbody"
+                :mode="'code'"
+                lang="zh"
+                @json-change="onJsonChange">
+                </vue-json-editor>
             </div>
         </a-modal>
     </div>
 </template>
 
 <script>
+import Vue from 'vue';
+import vueJsonEditor from 'vue-json-editor';
+
+Vue.component('vue-json-editor', vueJsonEditor);
+
 export default {
     data() {
         return {
             key: 0,
             name: '',
             url: '',
-            jsonbody: '',
+            yapi: '',
+            jsonbody: {},
             listData: [],
             visible: false,
             columns: [
@@ -95,13 +110,17 @@ export default {
         };
     },
     mounted() {
-        const me = this;
-        chrome.storage.local.get(['listData'], result => {
-            me.listData = result.listData || [];
-        });
+        this.init();
     },
     methods: {
         init() {
+            const me = this;
+            chrome.storage.local.get(['listData'], result => {
+                me.listData = result.listData || [];
+            });
+        },
+        onJsonChange (value) {
+            console.log('value:', value);
         },
         showModal() {
             this.visible = true;
@@ -152,7 +171,8 @@ export default {
                 this.key = list[0].key;
                 this.name = list[0].name;
                 this.url = list[0].url;
-                this.jsonbody = list[0].jsonbody;
+                this.jsonbody = JSON.parse(list[0].jsonbody);
+                this.yapi = list[0].yapi;
             });
         },
         // 删除单条数据
@@ -206,7 +226,8 @@ export default {
         reset() {
             this.name = '';
             this.url = '';
-            this.jsonbody = '';
+            this.jsonbody = {};
+            this.yapi = '';
             this.key = 0;
         },
         // modal取消事件
@@ -227,7 +248,8 @@ export default {
                     if (item.key === me.key) {
                         item.name = me.name;
                         item.url = me.url;
-                        item.jsonbody = me.jsonbody;
+                        item.jsonbody = JOSN.stringify(me.jsonbody);
+                        item.yapi = me.yapi;
                     }
                 });
                 chrome.storage.local.set({
@@ -245,7 +267,8 @@ export default {
                     name: me.name,
                     url: me.url,
                     status: true,
-                    jsonbody: me.jsonbody
+                    jsonbody: JOSN.stringify(me.jsonbody),
+                    yapi: me.yapi
                 });
                 chrome.storage.local.set({
                     listData: me.listData
@@ -278,5 +301,11 @@ export default {
         display: inline-block;
         padding: 8px 0 3px;
     }
+}
+.jsoneditor-poweredBy {
+    display: none !important;;
+}
+.jsoneditor-modes {
+    display: none !important;
 }
 </style>
