@@ -20,17 +20,21 @@
                 original_response = response.target.responseText;
                 Object.defineProperty(this, "responseText", { writable: true });
                 modified_response = JSON.parse(original_response);
-                console.log(2233, response);
+
                 // 根据 sendBypass 中保存的数据修改响应内容
                 if (mockData.yapi) {
                     const me = this;
                     // this.responseText = original_response;
                     feToolAxios.post(mockData.yapi).then(function (res) {
                         me.responseText = res.data;
+                        console.info(`%cFeTools mock信息(yapi)：${me.responseURL}`, 'color: green;',
+                            JSON.parse(res.data));
                     });
                 }
                 else {
                     this.responseText = mockData.jsonbody;
+                    console.info(`%cFeTools mock信息(自定义数据)：${this.responseURL}`, 'color: green;',
+                                JSON.parse(mockData.jsonbody));
                 }
             }
         }

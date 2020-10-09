@@ -26,5 +26,7 @@ chrome.storage.local.get(['listData'], result => {
         script2.setAttribute('type', 'text/javascript');
         script2.setAttribute('src', chrome.extension.getURL('xmlhttp.js'));
         document.documentElement.appendChild(script2);
+
+        console.info('%cFeTools Mock功能开启', 'color: green;');
     }
 });
