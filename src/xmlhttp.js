@@ -25,14 +25,6 @@
                 // 根据 sendBypass 中保存的数据修改响应内容
                 if (mockData.yapi) {
                     this.responseText = modified_response;
-                    console.log(7788, this.responseText);
-                    // const me = this;
-                    // this.responseText = original_response;
-                    // feToolAxios.post(mockData.yapi).then(function (res) {
-                    //     me.responseText = res.data;
-                    //     console.info(`%cFeTools mock信息(yapi)：${me.responseURL}`, 'color: green;',
-                    //         JSON.parse(res.data));
-                    // });
                 }
                 else {
                     this.responseText = mockData.jsonbody;
@@ -63,12 +55,12 @@
             
             if (mockData && mockData.yapi && mockData.url.includes(this.requestURL)) {
                 arguments[1] = mockData.yapi;
+                console.info(`%cFeTools mock成功(yapi数据)：${this.requestURL}`, 'color: green;');
             }
             
             this.addEventListener("readystatechange", modifyResponse);
             return original_function.apply(this, arguments);
         };
-
     }
 
     function sendBypass(original_function) {
