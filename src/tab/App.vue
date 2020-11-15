@@ -267,8 +267,8 @@ export default {
                     name: me.name,
                     url: me.url,
                     status: true,
-                    jsonbody: JOSN.stringify(me.jsonbody),
-                    yapi: me.yapi
+                    jsonbody: JSON.stringify(me.jsonbody),
+                    yapi: me.yapi || ''
                 });
                 chrome.storage.local.set({
                     listData: me.listData
