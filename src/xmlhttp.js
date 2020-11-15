@@ -11,7 +11,6 @@
                 return me.responseURL.includes(item.url);
             });
             mockData = mockData[0];
-            console.log(9988, mockData);
         } catch (error) {
             mockData = null;
         }
@@ -25,6 +24,8 @@
 
                 // 根据 sendBypass 中保存的数据修改响应内容
                 if (mockData.yapi) {
+                    this.responseText = modified_response;
+                    console.log(7788, this.responseText);
                     // const me = this;
                     // this.responseText = original_response;
                     // feToolAxios.post(mockData.yapi).then(function (res) {
@@ -46,9 +47,25 @@
             // 保存请求相关参数
             this.requestMethod = method;
             this.requestURL = url;
+            var mockData = null;
+            var me = this;
 
+            try {
+                let myMockDatas = window.localStorage.getItem('mockDatas');
+                myMockDatas = JSON.parse(myMockDatas);
+                mockData = myMockDatas.filter(item => {
+                    return item.yapi && item.yapi.includes(me.requestURL);
+                });
+                mockData = mockData[0];
+            } catch (error) {
+                mockData = null;
+            }
+            
+            if (mockData && mockData.yapi && mockData.url.includes(this.requestURL)) {
+                arguments[1] = mockData.yapi;
+            }
+            
             this.addEventListener("readystatechange", modifyResponse);
-            // arguments[1] = yapi;
             return original_function.apply(this, arguments);
         };
 
