@@ -270,6 +270,7 @@ export default {
                     status: true,
                     jsonbody: JSON.stringify(me.jsonbody),
                     yapi: me.yapi || ''
+
                 });
                 chrome.storage.local.set({
                     listData: me.listData
