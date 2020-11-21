@@ -9,6 +9,7 @@
 
 ## 如何贡献
 * 联系作者gavinguo
+* 邮箱：guojiawen000@qq.com
 
 ## 讨论
 ### 常见问题

@@ -61,6 +61,7 @@
                 @json-change="onJsonChange">
                 </vue-json-editor>
             </div>
+            <p>注意1：yapi和自定义数据不可同时配置，yapi优先级高于自定义数据</p>
         </a-modal>
     </div>
 </template>

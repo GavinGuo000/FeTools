@@ -1,73 +1,90 @@
-(function() {
-    function modifyResponse(response) {
-        var original_response, modified_response;
-        var mockData = null;
-        var me = this;
+/**
+ * @file 对请求流程进行改造
+ * @author gavinguo
+ */
 
+(function () {
+    function modifyResponse(response) {
+        let originalResponse = '';
+        let modifiedResponse = '';
+        let mockData = null;
+
+        // 去除请求中的requestid
+        let request = this.requestURL;
+        if (this.requestURL.includes('&reqid')) {
+            request = this.requestURL.split('&reqid')[0];
+        }
+
+        // 判断当前url是否配置了自定义数据
         try {
             let myMockDatas = window.localStorage.getItem('mockDatas');
             myMockDatas = JSON.parse(myMockDatas);
             mockData = myMockDatas.filter(item => {
-                return me.responseURL.includes(item.url);
+                return !item.yapi && item.jsonbody && item.url.indexOf(request) > -1;
             });
             mockData = mockData[0];
-        } catch (error) {
+        }
+        catch (error) {
             mockData = null;
         }
 
         if (this.readyState === 4) {
-            // 使用在 openBypass 中保存的相关参数判断是否需要修改
-            if (mockData && mockData.url && this.responseURL.includes(mockData.url)) {
-                original_response = response.target.responseText;
-                Object.defineProperty(this, "responseText", { writable: true });
-                modified_response = JSON.parse(original_response);
+            originalResponse = response.target.responseText;
+            Object.defineProperty(this, 'responseText', {writable: true});
+            modifiedResponse = JSON.parse(originalResponse);
 
-                // 根据 sendBypass 中保存的数据修改响应内容
-                if (mockData.yapi) {
-                    this.responseText = modified_response;
-                }
-                else {
-                    this.responseText = mockData.jsonbody;
-                    console.info(`%cFeTools mock成功(自定义数据)：${this.responseURL}`, 'color: green;');
-                }
+            // 如果配置了自定义数据，执行下面操作
+            if (mockData && mockData.url) {
+                this.responseText = mockData.jsonbody;
+                console.info(`%cFeTools mock成功(自定义数据)：${this.responseURL}`, 'color: green;');
+            }
+            else {
+                this.responseText = modifiedResponse;
             }
         }
     }
 
-    function openBypass(original_function) {
+    function openBypass(originalFunction) {
         return function (method, url) {
             // 保存请求相关参数
             this.requestMethod = method;
             this.requestURL = url;
-            var mockData = null;
-            var me = this;
+            let mockData = null;
 
+            // 去除请求中的requestid
+            let request = this.requestURL;
+            if (this.requestURL.includes('&reqid')) {
+                request = this.requestURL.split('&reqid')[0];
+            }
+
+            // 判断当前的请求是否配置了yapi
             try {
                 let myMockDatas = window.localStorage.getItem('mockDatas');
                 myMockDatas = JSON.parse(myMockDatas);
                 mockData = myMockDatas.filter(item => {
-                    return item.yapi && item.yapi.includes(me.requestURL);
+                    return item.yapi && item.url.indexOf(request) > -1;
                 });
                 mockData = mockData[0];
             } catch (error) {
                 mockData = null;
             }
-            
-            if (mockData && mockData.yapi && mockData.url.includes(this.requestURL)) {
+
+            // 如果配置了yapi，执行下面操作
+            if (mockData && mockData.yapi) {
                 arguments[1] = mockData.yapi;
                 console.info(`%cFeTools mock成功(yapi数据)：${this.requestURL}`, 'color: green;');
             }
-            
-            this.addEventListener("readystatechange", modifyResponse);
-            return original_function.apply(this, arguments);
+
+            this.addEventListener('readystatechange', modifyResponse);
+            return originalFunction.apply(this, arguments);
         };
     }
 
-    function sendBypass(original_function) {
+    function sendBypass(originalFunction) {
         return function (data) {
             // 保存请求相关参数
             this.requestData = data;
-            return original_function.apply(this, arguments);
+            return originalFunction.apply(this, arguments);
         };
     }
     XMLHttpRequest.prototype.open = openBypass(XMLHttpRequest.prototype.open);
