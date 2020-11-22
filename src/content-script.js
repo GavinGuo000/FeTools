@@ -14,7 +14,7 @@ chrome.storage.local.get(['listData'], result => {
             mockDatas = [];
         }
     }
-    
+
     // 如果存在mock数据，则将mock功能注入页面
     if (mockDatas.length > 0) {
         const script = document.createElement('script');

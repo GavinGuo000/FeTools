@@ -49,7 +49,7 @@
                 <a-input placeholder="url" v-model="url" />
             </div>
             <div class="mock-wrap-inline">
-                <label>YAPI：</label>
+                <label>YAPI：<a class="mock-wrap-link" href="http://yapi.baidu-int.com/" target="_blank">(前往yapi)</a></label>
                 <a-input placeholder="url" v-model="yapi" />
             </div>
             <div class="mock-wrap-inline">
@@ -62,6 +62,7 @@
                 </vue-json-editor>
             </div>
             <p>注意1：yapi和自定义数据不可同时配置，yapi优先级高于自定义数据</p>
+            <p>注意2：配置url字段时，需要去掉随机参数(如：requsetid)</p>
         </a-modal>
     </div>
 </template>
@@ -302,6 +303,10 @@ export default {
     label {
         display: inline-block;
         padding: 8px 0 3px;
+    }
+    .mock-wrap-link {
+        font-size: 12px;
+        margin-left: 3px;
     }
 }
 .jsoneditor-poweredBy {

@@ -1,6 +1,6 @@
 <template>
     <div class="minimock-popup-wrap">
-        <h3>FeTools功能1</h3>
+        <h3>FeTools功能</h3>
         <a-button type="primary" @click="gotoMock" class="btn-wrap">
             <a-icon type="api" /> 设置Mock数据
         </a-button>

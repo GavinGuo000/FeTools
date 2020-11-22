@@ -87,6 +87,8 @@
             return originalFunction.apply(this, arguments);
         };
     }
+
+    window.isFetools = true;
     XMLHttpRequest.prototype.open = openBypass(XMLHttpRequest.prototype.open);
     XMLHttpRequest.prototype.send = sendBypass(XMLHttpRequest.prototype.send);
 })();
