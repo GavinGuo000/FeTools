@@ -2,8 +2,8 @@ let mockDatas = [];
 
 // 将Chrome扩展存储的数据，存入localStorage，并且将mock功能注入页面
 chrome.storage.local.get(['listData'], result => {
-    mockDatas = result.listData.filter(item => {
-        return item.url.includes(location.host) && item.status;
+    mockDatas = (result.listData || []).filter(item => {
+        return item.url && item.url.includes(location.host) && item.status;
     });
 
     // 如果存在mock数据，则将mock数据存入localStorage

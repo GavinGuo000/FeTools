@@ -1,318 +1,120 @@
 <template>
-    <div class="mock-wrap">
-        <nav class="mock-top">
-            <a-button type="primary" @click="showModal" class="btn-wrap">
-                <a-icon type="plus" /> 新建Mock数据
-            </a-button>
-            <a-button type="danger" @click="deleteData" class="btn-wrap">
-                <a-icon type="delete" /> 清除数据
-            </a-button>
-            <a-button type="info" @click="closeAll" class="btn-wrap">
-                <a-icon type="disconnect" /> 关闭所有数据
-            </a-button>
-            <a-button type="primary" @click="openAll" class="btn-wrap">
-                <a-icon type="bug" /> 开启所有数据
-            </a-button>
-        </nav>
-        <section>
-            <a-table :columns="columns" :data-source="listData">
-                <span slot="customTitle">API名称</span>
-                <span slot="url" slot-scope="url">{{url}}</span>
-                <span slot="status" slot-scope="text, record">
-                    <a-switch 
-                        v-model="text"
-                        checked-children="开"
-                        un-checked-children="关"
-                        default-checked
-                        @change="switchStatus(record.key)"
-                    />
-                </span>
-                <span slot="action" slot-scope="text, record">
-                    <a href="javascript:;" @click="editItem(record.key)">编辑</a>
-                    <a-divider type="vertical" />
-                    <a-popconfirm placement="bottomRight" ok-text="确定" cancel-text="取消" @confirm="deleteItem(record.key)">
-                        <template slot="title">
-                            确认要删除此条数据吗？
-                        </template>
-                        <a href="javascript:;">删除</a>
-                    </a-popconfirm> 
-                </span>
-            </a-table>
-        </section>
-        <a-modal v-model="visible" title="mock数据详情" okText="确定" cancelText="取消" @ok="handleOk" @cancel="handleCancel">
-            <div class="mock-wrap-inline">
-                <label>名称：</label>
-                <a-input placeholder="mock名称" v-model="name" />
+    <a-layout class="fetools-layout">
+        <a-layout-sider theme="dark" :width="210">
+            <div class="logo">
+                <a-icon type="tool" /> FeTools 工具箱
             </div>
-            <div class="mock-wrap-inline">
-                <label>URL：</label>
-                <a-input placeholder="url" v-model="url" />
-            </div>
-            <div class="mock-wrap-inline">
-                <label>YAPI：<a class="mock-wrap-link" href="http://yapi.baidu-int.com/" target="_blank">(前往yapi)</a></label>
-                <a-input placeholder="url" v-model="yapi" />
-            </div>
-            <div class="mock-wrap-inline">
-                <label>自定义数据：</label>
-                <vue-json-editor
-                v-model="jsonbody"
-                :mode="'code'"
-                lang="zh"
-                @json-change="onJsonChange">
-                </vue-json-editor>
-            </div>
-            <p>注意1：yapi和自定义数据不可同时配置，yapi优先级高于自定义数据</p>
-            <p>注意2：配置url字段时，需要去掉随机参数(如：requsetid)</p>
-        </a-modal>
-    </div>
+            <a-menu theme="dark" mode="inline" :selected-keys="[current]" @click="onMenu">
+                <a-menu-item key="mock"><a-icon type="api" /><span>Mock 数据</span></a-menu-item>
+                <a-menu-item key="json"><a-icon type="code" /><span>JSON 工具</span></a-menu-item>
+                <a-menu-item key="timestamp"><a-icon type="clock-circle" /><span>时间戳转换</span></a-menu-item>
+                <a-menu-item key="encode"><a-icon type="lock" /><span>编码 / 解码</span></a-menu-item>
+                <a-menu-item key="color"><a-icon type="bg-colors" /><span>颜色转换</span></a-menu-item>
+                <a-menu-item key="regex"><a-icon type="filter" /><span>正则测试</span></a-menu-item>
+            </a-menu>
+        </a-layout-sider>
+        <a-layout>
+            <a-layout-content class="fetools-content">
+                <keep-alive>
+                    <component :is="currentComp" />
+                </keep-alive>
+            </a-layout-content>
+        </a-layout>
+    </a-layout>
 </template>
 
 <script>
-import Vue from 'vue';
-import vueJsonEditor from 'vue-json-editor';
+import Mock from './components/Mock.vue';
+import JsonTool from './components/JsonTool.vue';
+import TimestampTool from './components/TimestampTool.vue';
+import EncodeTool from './components/EncodeTool.vue';
+import ColorTool from './components/ColorTool.vue';
+import RegexTool from './components/RegexTool.vue';
 
-Vue.component('vue-json-editor', vueJsonEditor);
+const compMap = {
+    mock: Mock,
+    json: JsonTool,
+    timestamp: TimestampTool,
+    encode: EncodeTool,
+    color: ColorTool,
+    regex: RegexTool
+};
 
 export default {
+    components: {Mock, JsonTool, TimestampTool, EncodeTool, ColorTool, RegexTool},
     data() {
+        const hash = (window.location.hash || '').replace('#', '');
         return {
-            key: 0,
-            name: '',
-            url: '',
-            yapi: '',
-            jsonbody: {},
-            listData: [],
-            visible: false,
-            columns: [
-                {
-                    dataIndex: 'name',
-                    key: 'name',
-                    slots: {title: 'customTitle'},
-                    scopedSlots: {customRender: 'name'}
-                },
-                {
-                    dataIndex: 'url',
-                    title: 'url名称',
-                    key: 'url',
-                    slots: {title: 'url'},
-                    scopedSlots: {customRender: 'url'}
-                },
-                {
-                    title: '状态',
-                    key: 'status',
-                    dataIndex: 'status',
-                    scopedSlots: {customRender: 'status'}
-                },
-                {
-                    title: '操作',
-                    key: 'action',
-                    scopedSlots: {customRender: 'action'}
-                }
-            ]
+            current: compMap[hash] ? hash : 'mock'
         };
     },
+    computed: {
+        currentComp() {
+            return compMap[this.current] || Mock;
+        }
+    },
     mounted() {
-        this.init();
+        window.addEventListener('hashchange', this.onHashChange);
+    },
+    beforeDestroy() {
+        window.removeEventListener('hashchange', this.onHashChange);
     },
     methods: {
-        init() {
-            const me = this;
-            chrome.storage.local.get(['listData'], result => {
-                me.listData = result.listData || [];
-            });
+        onMenu({key}) {
+            this.current = key;
+            window.location.hash = key;
         },
-        onJsonChange (value) {
-            this.jsonbody = value;
-        },
-        showModal() {
-            this.visible = true;
-        },
-        // 删除全部数据
-        deleteData() {
-            const me = this;
-
-            this.$confirm({
-                title: '确认要删除所有的数据吗?',
-                content: '删除后将无法恢复',
-                okText: '确定',
-                cancelText: '取消',
-                onOk() {
-                    chrome.storage.local.clear(() => {
-                        me.$message.success('清除mock数据成功！');
-                    });
-                    chrome.storage.local.get(['listData'], result => {
-                        me.listData = result.listData || [];
-                    });
-                },
-                onCancel() {}
-            });
-        },
-        // 修改数据状态
-        switchStatus(key) {
-            const me = this;
-            chrome.storage.local.get(['listData'], result => {
-                const list = result.listData || [];
-                list.forEach(item => {
-                    if (item.key === key) {
-                        item.status = !item.status;
-                    }
-                });
-                me.listData = list;
-                chrome.storage.local.set({
-                    listData: list
-                });
-            });
-        },
-        // 编辑单条数据
-        editItem(key) {
-            this.visible = true;
-            chrome.storage.local.get(['listData'], result => {
-                const list = (result.listData || []).filter(item => {
-                    return item.key === key;
-                });
-                this.key = list[0].key;
-                this.name = list[0].name;
-                this.url = list[0].url;
-                this.jsonbody = JSON.parse(list[0].jsonbody);
-                this.yapi = list[0].yapi;
-            });
-        },
-        // 删除单条数据
-        deleteItem(key) {
-            const me = this;
-            chrome.storage.local.get(['listData'], result => {
-                const list = (result.listData || []).filter(item => {
-                    return item.key !== key;
-                });
-                me.listData = list;
-                chrome.storage.local.set({
-                    listData: list
-                }, () => {
-                    me.$message.success('删除成功！');
-                });
-            });
-        },
-        // 关闭所有的状态
-        closeAll() {
-            const me = this;
-            chrome.storage.local.get(['listData'], result => {
-                const list = (result.listData || []).map(item => {
-                    return {
-                        ...item,
-                        status: false
-                    };
-                });
-                me.listData = list;
-                chrome.storage.local.set({
-                    listData: list
-                });
-            });
-        },
-        // 打开所有的状态
-        openAll() {
-            const me = this;
-            chrome.storage.local.get(['listData'], result => {
-                const list = (result.listData || []).map(item => {
-                    return {
-                        ...item,
-                        status: true
-                    };
-                });
-                me.listData = list;
-                chrome.storage.local.set({
-                    listData: list
-                });
-            });
-        },
-        // 重置数据
-        reset() {
-            this.name = '';
-            this.url = '';
-            this.jsonbody = {};
-            this.yapi = '';
-            this.key = 0;
-        },
-        // modal取消事件
-        handleCancel() {
-            this.reset();
-        },
-        // modal确定事件
-        handleOk(e) {
-            this.visible = false;
-            const me = this;
-
-            chrome.storage.local.get(['listData'], result => {
-                me.listData = result.listData || [];
-            });
-
-            if (me.key) {
-                me.listData.forEach(item => {
-                    if (item.key === me.key) {
-                        item.name = me.name;
-                        item.url = me.url;
-                        item.jsonbody = JSON.stringify(me.jsonbody);
-                        item.yapi = me.yapi;
-                    }
-                });
-                chrome.storage.local.set({
-                    listData: me.listData
-                }, () => {
-                    me.$message.success('编辑mock成功！');
-                    chrome.storage.local.get(['listData'], result => {
-                        me.listData = result.listData || [];
-                    });
-                });
+        onHashChange() {
+            const hash = (window.location.hash || '').replace('#', '');
+            if (compMap[hash]) {
+                this.current = hash;
             }
-            else {
-                me.listData.push({
-                    key: Math.random() * 10e16,
-                    name: me.name,
-                    url: me.url,
-                    status: true,
-                    jsonbody: JSON.stringify(me.jsonbody),
-                    yapi: me.yapi || ''
-
-                });
-                chrome.storage.local.set({
-                    listData: me.listData
-                }, () => {
-                    me.$message.success('添加mock成功！');
-                    chrome.storage.local.get(['listData'], result => {
-                        me.listData = result.listData || [];
-                    });
-                });
-            }
-            me.reset();
         }
     }
 };
 </script>
 
-<style lang="scss" scoped>
-.mock-wrap {
-    nav {
-        padding: 10px 20px;
-        background: #233050;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
-        .btn-wrap {
-            margin-right: 10px;
-        }
+<style lang="scss">
+html, body {
+    margin: 0;
+    padding: 0;
+}
+.fetools-layout {
+    min-height: 100vh;
+    .logo {
+        height: 56px;
+        line-height: 56px;
+        padding-left: 20px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.05);
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    .ant-layout-sider {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        overflow: auto;
+    }
+    .fetools-content {
+        margin-left: 210px;
+        min-height: 100vh;
+        background: #fff;
     }
 }
-.mock-wrap-inline {
-    label {
-        display: inline-block;
-        padding: 8px 0 3px;
+.tool-panel {
+    padding: 24px 28px;
+    .tool-title {
+        margin: 0 0 4px;
+        font-size: 20px;
+        color: #233050;
     }
-    .mock-wrap-link {
-        font-size: 12px;
-        margin-left: 3px;
+    .tool-desc {
+        margin: 0 0 18px;
+        color: #999;
     }
-}
-.jsoneditor-poweredBy {
-    display: none !important;;
-}
-.jsoneditor-modes {
-    display: none !important;
 }
 </style>

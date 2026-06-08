@@ -29,6 +29,11 @@ const config = {
     resolve: {
         extensions: ['.js', '.vue']
     },
+    // 使用轮询模式替代 fsevents，规避 Node 高版本下 fsevents@1.x 不兼容的问题
+    watchOptions: {
+        poll: 1000,
+        ignored: /node_modules/
+    },
     module: {
         rules: [
             {
@@ -46,11 +51,30 @@ const config = {
             },
             {
                 test: /\.scss$/,
-                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: require('sass')
+                        }
+                    }
+                ]
             },
             {
                 test: /\.sass$/,
-                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader?indentedSyntax']
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: require('sass'),
+                            indentedSyntax: true
+                        }
+                    }
+                ]
             },
             {
                 test: /\.(png|jpg|gif|svg|ico)$/,
